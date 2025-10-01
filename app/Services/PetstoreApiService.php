@@ -34,8 +34,20 @@ class PetstoreApiService
 
     }
 
+    public function updatePet(array $petData): array
+    {
+        $response = Http::withOptions(['verify' => false])->put($this->baseUrl, $petData);
+    
+        if ($response->successful()) {
+            return $response->json();
+        }
+    
+        throw new RequestException($response);
+    }
+    
+
     protected function handleResponse($response): array {
-        
+
         if ($response->successful()) {
             return $response->json();
         }
