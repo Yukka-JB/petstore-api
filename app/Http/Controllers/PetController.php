@@ -1,11 +1,11 @@
 <?php
-namespace App\HTTP\Controllers;
+namespace App\Http\Controllers;
 
-use Illuminate\HTTP\Request;
+use Illuminate\Http\Request;
 use App\Services\PetStoreApiService;
 use Illuminate\Http\Client\RequestException;
 
-class PetController extends Controllers
+class PetController extends Controller
 {
     protected PetstoreApiService $apiService;
 
@@ -32,7 +32,7 @@ class PetController extends Controllers
     public function store (Request $request) {
 
         $validated = $request->validate([
-            'id' => 'required|integer|unique:petstore',
+            'id' => 'required|integer',
             'name' => 'required|string',
         ]);
 
@@ -60,6 +60,18 @@ class PetController extends Controllers
             return back()->withErrors('Nie udało sie zaktualizować pet\'a: ' . $e->getMessage())->withInput();
         }
     }
+
+    public function edit($id)
+    {
+        try {
+            $pet = $this->apiService->getPet($id);
+            return view('pets.edit', compact('pet'));
+        } catch (RequestException $e) {
+            return redirect()->route('pets.create')
+                ->withErrors('Pet not found or an error occurred: ' . $e->getMessage());
+        }
+    }
+
 
     public function destroy($id)
     {
