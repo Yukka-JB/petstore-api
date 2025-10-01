@@ -29,19 +29,31 @@ class PetController extends Controller
     }
 
 
-    public function store (Request $request) {
-
+    public function store(Request $request) {
         $validated = $request->validate([
             'id' => 'required|integer',
             'name' => 'required|string',
+            'category' => 'required|string',
+            'photoUrls' => 'required|string',
+            'tags' => 'required|string',
+            'status' => 'required|string',
         ]);
-
+    
+        $petData = $request->all();
+    
+        $petData['category'] = json_decode($petData['category'], true);
+        $petData['photoUrls'] = json_decode($petData['photoUrls'], true);
+        $petData['tags'] = json_decode($petData['tags'], true);
+    
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return back()->withErrors('Niepoprawny format JSON w fieldach: category, photoUrls, or tags')->withInput();
+        }
+    
         try {
-            $petData = $request->all();
             $this->apiService->addPet($petData);
             return redirect()->route('pets.create')->with('success', 'Pet został dodany.');
         } catch (RequestException $e) {
-            return back()->withErrors('Nieudało sie dodać pet\'a: ' . $e->getMessage())->withInput();
+            return back()->withErrors('Nie udało się dodać pet\'a: ' . $e->getMessage())->withInput();
         }
     }
 
